@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Navigator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --github-dark: #0d1117;
+            --github-darker: #010409;
+            --github-light: #f6f8fa;
+            --github-border: #30363d;
+            --github-primary: #238636;
+            --github-primary-hover: #2ea043;
+            --github-text: #c9d1d9;
+            --github-link: #58a6ff;
+            --accent-color: #2188ff;
+            --danger-color: #f85149;
+        }
+        
+        body {
+            background-color: var(--github-dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--github-text);
+            transition: all 0.3s ease;
+            padding-bottom: 2rem;
+        }
+        
+        .chat-container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            background-color: var(--github-darker);
+            overflow: hidden;
+            border: 1px solid var(--github-border);
+        }
+        
+        .chat-header {
+            background: linear-gradient(to right, #161b22, #0d1117);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--github-border);
+        }
+        
+        .chat-header .brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem;
+        }
+        
+        .chat-header .github-icon {
+            margin-right: 12px;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .chat-messages {
+            height: 65vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: var(--github-dark);
+            scrollbar-width: thin;
+            scrollbar-color: var(--github-border) var(--github-dark);
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--github-dark);
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--github-border);
+            border-radius: 20px;
+            border: 2px solid var(--github-dark);
+        }
+        
+        .message {
+            margin-bottom: 1.5rem;
+            max-width: 85%;
+            clear: both;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            float: right;
+            background: linear-gradient(135deg, #2188ff, #004182);
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 1rem 1.2rem;
+        }
+        
+        .user-message::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(225deg, #004182, transparent);
+            border-bottom-left-radius: 15px;
+        }
+        
+        .bot-message {
+            float: left;
+            background-color: #161b22;
+            color: #e6edf3;
+            border-radius: 18px 18px 18px 0;
+            padding: 1rem 1.2rem;
+            border: 1px solid var(--github-border);
+        }
+        
+        .bot-message::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, transparent, #161b22);
+            border-bottom-right-radius: 15px;
+        }
+        
+        .message-input {
+            padding: 1.2rem 1.5rem;
+            background-color: var(--github-darker);
+            border-top: 1px solid var(--github-border);
+        }
+        
+        .token-counter {
+            font-size: 0.8rem;
+            color: #8b949e;
+            text-align: right;
+            padding: 0.5rem 1.5rem;
+            background-color: var(--github-darker);
+            border-top: 1px solid var(--github-border);
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            margin-left: 15px;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--github-text);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 3px;
+            animation: typing 1s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        
+        pre {
+            background-color: #0d1117;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            border: 1px solid var(--github-border);
+            margin: 0.5rem 0;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            display: none;
+            margin-left: 15px;
+        }
+        
+        .message a {
+            color: var(--github-link);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--github-link);
+            transition: all 0.2s ease;
+        }
+        
+        .message a:hover {
+            border-bottom: 1px solid var(--github-link);
+        }
+        
+        .bot-message a {
+            color: var(--github-link);
+        }
+        
+        input.form-control {
+            background-color: #161b22;
+            border: 1px solid var(--github-border);
+            color: var(--github-text);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+        }
+        
+        input.form-control:focus {
+            background-color: #161b22;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(33, 136, 255, 0.15);
+            color: white;
+        }
+        
+        input.form-control::placeholder {
+            color: #8b949e;
+        }
+        
+        .btn-primary {
+            background-color: var(--github-primary);
+            border-color: var(--github-primary);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--github-primary-hover);
+            border-color: var(--github-primary-hover);
+            box-shadow: 0 0 0 3px rgba(45, 164, 78, 0.2);
+        }
+        
+        .btn-outline-light {
+            color: #e6edf3;
+            border-color: #30363d;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background-color: #30363d;
+            border-color: #8b949e;
+            color: white;
+        }
+        
+        .message-metadata {
+            font-size: 0.75rem;
+            margin-top: 0.3rem;
+            color: #8b949e;
+            clear: both;
+        }
+        
+        .user-message-container, .bot-message-container {
+            clear: both;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .app-title {
+            text-align: center;
+            margin: 2rem 0 0.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .app-subtitle {
+            text-align: center;
+            color: #8b949e;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+        
+        .repo-info {
+            background-color: rgba(33, 136, 255, 0.1);
+            border: 1px solid rgba(33, 136, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #e6edf3;
+        }
+        
+        .repo-info i {
+            color: var(--github-link);
+            margin-right: 0.5rem;
+        }
+        
+        .bot-welcome {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .bot-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: #238636;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="app-title">GitHub Navigator</h1>
+    <p class="app-subtitle">Your AI assistant for GitHub repositories</p>
+    
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="brand">
+                    <i class="fab fa-github github-icon"></i>
+                    GitHub Navigator
+                </div>
+                <button id="resetBtn" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-redo-alt"></i> New Chat
+                </button>
+            </div>
+            
+            <div id="chatMessages" class="chat-messages">
+                <div class="bot-welcome">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message bot-message">
+                        <p>Hi! I'm your GitHub Navigator. I can help you understand and work with any GitHub repository.</p>
+                        <p>To get started, paste a GitHub repository URL below.</p>
+                        <p><small>Example: <code>https://github.com/username/repository</code></small></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tokenCounter" class="token-counter">
+                Token count: 0
+            </div>
+            
+            <div class="message-input">
+                <form id="chatForm" class="d-flex">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        class="form-control" 
+                        placeholder="Enter a GitHub URL or ask a question..." 
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn btn-primary ms-2">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <div id="loading" class="loading">
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </form>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for code syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    
+    <script>
+        $(document).ready(function() {
+            // Setup variables for rate limiting
+            let isRateLimited = false;
+            let lastMessage = '';
+            let retryTimeout = null;
+            let currentRepo = null;
+            
+            // Setup marked.js with highlight.js
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } else {
+                        return hljs.highlightAuto(code).value;
+                    }
+                },
+                breaks: true
+            });
+            
+            // Function to send a message to the server
+            function sendMessage(message, isRetry = false) {
+                // Show loading indicator
+                $('#loading').show();
+                
+                // Check if this is a GitHub URL and we don't have a repo yet
+                const githubUrlRegex = /https?:\/\/github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+/;
+                if (!currentRepo && githubUrlRegex.test(message)) {
+                    currentRepo = message;
+                    
+                    // Add repo info banner
+                    const repoName = message.split('/').slice(-2).join('/');
+                    const repoInfo = $('<div class="repo-info"><i class="fas fa-info-circle"></i>Connecting to repository: <strong>' + repoName + '</strong></div>');
+                    $('#chatMessages').append(repoInfo);
+                    
+                    // Scroll to bottom
+                    scrollToBottom();
+                }
+                
+                // Send message to server
+                $.ajax({
+                    url: '/chat',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ message: message }),
+                    success: function(data) {
+                        // Hide loading indicator
+                        $('#loading').hide();
+                        
+                        // Add bot response to chat
+                        addMessage(data.response, 'bot');
+                        
+                        // Update token counter
+                        $('#tokenCounter').text('Token count: ' + data.token_count);
+                        
+                        // Handle rate limiting
+                        if (data.rate_limited) {
+                            isRateLimited = true;
+                            // Show rate limit message
+                            const rateMsg = 'Rate limit reached. The API has a limit of 5 requests per minute. Please wait a moment before trying again.';
+                            $('#errorMessage').text(rateMsg);
+                            
+                            // Set up retry after 10 seconds if this wasn't already a retry
+                            if (!isRetry) {
+                                lastMessage = message;
+                                const retryMsg = "I'll automatically retry in 10 seconds...";
+                                const retryElement = $('<div class="message bot-message" style="font-style: italic; opacity: 0.8;"></div>');
+                                retryElement.text(retryMsg);
+                                $('#chatMessages').append(retryElement);
+                                
+                                // Scroll to bottom
+                                scrollToBottom();
+                                
+                                // Set retry timeout
+                                retryTimeout = setTimeout(function() {
+                                    sendMessage(lastMessage, true);
+                                }, 10000);
+                            }
+                            
+                            setTimeout(function() {
+                                $('#errorMessage').text('');
+                            }, 5000);
+                        } else {
+                            // Reset rate limiting if successful
+                            isRateLimited = false;
+                            lastMessage = '';
+                            if (retryTimeout) {
+                                clearTimeout(retryTimeout);
+                                retryTimeout = null;
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Hide loading indicator
+                        $('#loading').hide();
+                        
+                        // Show error message
+                        let errorMessage = 'Error: ' + error;
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+                        $('#errorMessage').text(errorMessage);
+                        
+                        // Add error message to chat
+                        const errorElement = $('<div class="message bot-message" style="color: var(--danger-color); border-color: var(--danger-color);"></div>');
+                        errorElement.html('<i class="fas fa-exclamation-triangle"></i> Error: ' + errorMessage);
+                        $('#chatMessages').append(errorElement);
+                        
+                        // Scroll to bottom
+                        scrollToBottom();
+                        
+                        // Clear error after 5 seconds
+                        setTimeout(function() {
+                            $('#errorMessage').text('');
+                        }, 5000);
+                    }
+                });
+            }
+            
+            // Function to scroll to bottom of chat
+            function scrollToBottom() {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to get formatted timestamp
+            function getFormattedTime() {
+                const now = new Date();
+                return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            // Handle form submission
+            $('#chatForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const messageInput = $('#messageInput');
+                const message = messageInput.val().trim();
+                
+                if (message) {
+                    // Clear input
+                    messageInput.val('');
+                    
+                    // Add user message to chat
+                    addMessage(message, 'user');
+                    
+                    // Send message to server
+                    sendMessage(message);
+                }
+            });
+            
+            // Handle reset button click
+            $('#resetBtn').on('click', function() {
+                if (confirm('Are you sure you want to start a new chat? This will clear the current conversation.')) {
+                    $.ajax({
+                        url: '/reset',
+                        type: 'POST',
+                        success: function(data) {
+                            // Clear chat messages
+                            $('#chatMessages').html('');
+                            
+                            // Add welcome message
+                            const welcomeMessage = `
+                                <div class="bot-welcome">
+                                    <div class="bot-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message bot-message">
+                                        <p>Hi! I'm your GitHub Navigator. I can help you understand and work with any GitHub repository.</p>
+                                        <p>To get started, paste a GitHub repository URL below.</p>
+                                        <p><small>Example: <code>https://github.com/username/repository</code></small></p>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            $('#chatMessages').html(welcomeMessage);
+                            
+                            // Reset token counter
+                            $('#tokenCounter').text('Token count: 0');
+                            
+                            // Reset current repo
+                            currentRepo = null;
+                        }
+                    });
+                }
+            });
+            
+            // Function to add a message to the chat
+            function addMessage(message, sender) {
+                const timestamp = getFormattedTime();
+                let messageContainer;
+                
+                if (sender === 'user') {
+                    messageContainer = $('<div class="user-message-container"></div>');
+                    const messageElement = $('<div class="message user-message"></div>');
+                    messageElement.text(message);
+                    messageContainer.append(messageElement);
+                    
+                    // Add timestamp
+                    const timestampElement = $('<div class="message-metadata text-end"></div>');
+                    timestampElement.text(timestamp);
+                    messageContainer.append(timestampElement);
+                } else {
+                    messageContainer = $('<div class="bot-message-container"></div>');
+                    
+                    // Add bot avatar for bot messages
+                    const avatarContainer = $('<div class="bot-welcome"></div>');
+                    const avatar = $('<div class="bot-avatar"><i class="fas fa-robot"></i></div>');
+                    
+                    const messageElement = $('<div class="message bot-message"></div>');
+                    // Convert markdown to HTML
+                    messageElement.html(marked.parse(message));
+                    
+                    // Make URLs clickable
+                    messageElement.find('a').attr('target', '_blank');
+                    
+                    avatarContainer.append(avatar);
+                    avatarContainer.append(messageElement);
+                    messageContainer.append(avatarContainer);
+                    
+                    // Add timestamp
+                    const timestampElement = $('<div class="message-metadata text-start ms-5"></div>');
+                    timestampElement.text(timestamp);
+                    messageContainer.append(timestampElement);
+                }
+                
+                $('#chatMessages').append(messageContainer);
+                
+                // Scroll to bottom
+                scrollToBottom();
+            }
+        });
+    </script>
+</body>
+</html> 

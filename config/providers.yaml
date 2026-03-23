@@ -1,0 +1,104 @@
+providers:
+  openrouter:
+    name: "openrouter"
+    api_key: "${OPENROUTER_API_KEY}"
+    base_url: "https://openrouter.ai/api/v1"
+    priority: 1
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "anthropic/claude-3.5-sonnet"
+      - "anthropic/claude-3-haiku"
+      - "google/gemini-pro"
+      - "openai/gpt-4"
+      - "openai/gpt-3.5-turbo"
+      - "meta-llama/llama-3.1-8b-instruct"
+      - "mistralai/mixtral-8x7b-instruct"
+
+  google:
+    name: "google"
+    api_key: "${GOOGLE_API_KEY}"
+    priority: 2
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "gemini-2.0-flash-thinking-exp-01-21"
+      - "gemini-2.5-pro-exp-03-25"
+      - "gemini-1.5-flash-latest"
+      - "gemini-1.5-pro"
+
+  groq:
+    name: "groq"
+    api_key: "${GROQ_API_KEY}"
+    base_url: "https://api.groq.com/openai/v1"
+    priority: 3
+    max_retries: 3
+    retry_delay: 0.5
+    timeout: 15.0
+    enabled: true
+    models:
+      - "llama-3.3-70b-versatile"
+      - "llama-3.1-8b-instant"
+      - "mixtral-8x7b-32768"
+      - "gemma2-9b-it"
+
+  anthropic:
+    name: "anthropic"
+    api_key: "${ANTHROPIC_API_KEY}"
+    base_url: "https://api.anthropic.com"
+    priority: 4
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "claude-3-5-sonnet-20241022"
+      - "claude-3-5-haiku-20241022"
+      - "claude-3-opus-20240229"
+
+  openai:
+    name: "openai"
+    api_key: "${OPENAI_API_KEY}"
+    base_url: "https://api.openai.com/v1"
+    priority: 5
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "gpt-4o"
+      - "gpt-4o-mini"
+      - "gpt-4-turbo"
+      - "gpt-3.5-turbo"
+
+  together:
+    name: "together"
+    api_key: "${TOGETHER_API_KEY}"
+    base_url: "https://api.together.xyz/v1"
+    priority: 6
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "meta-llama/Llama-3.1-8B-Instruct-Turbo"
+      - "meta-llama/Llama-3.1-70B-Instruct-Turbo"
+      - "mistralai/Mixtral-8x7B-Instruct-v0.1"
+      - "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+
+  requesty:
+    name: "requesty"
+    api_key: "${REQUESTY_API_KEY}"
+    base_url: "https://router.requesty.ai/v1"
+    priority: 7
+    max_retries: 3
+    retry_delay: 1.0
+    timeout: 30.0
+    enabled: true
+    models:
+      - "google/gemini-2.0-flash-thinking-exp-01-21"
+      - "google/gemini-2.5-pro-exp-03-25"

@@ -1,0 +1,8 @@
+flask==2.3.3
+python-dotenv==1.0.0
+openai>=1.30.0
+gitingest
+tiktoken==0.6.0
+python-dateutil==2.8.2
+requests==2.31.0
+httpx 
