@@ -1,0 +1,28 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Editors / OS
+.DS_Store
+.ropeproject/
+.vscode/
+.idea/
+
+# Local scratch and reference files (requesty.md contains an API key)
+requesty.md
+gitingest.md
+ingest_py_example.py
+gitingest_summary.json
+gitingest_tree.json
+gitingest_content.txt
+
+# Runtime output
+conversation*.json
+*.log

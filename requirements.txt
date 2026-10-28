@@ -1,0 +1,8 @@
+flask==3.1.3
+python-dotenv==1.2.4
+litellm==1.105.1
+gitingest==0.3.1
+tiktoken==0.14.0
+gunicorn==26.2.0
+tenacity==9.2.1
+requests==2.31.0
